@@ -3,61 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Code Extractor - Quick Copy</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Code Extractor</title>
     <style>
         * {
-            margin: 0;
-            padding: 0;
+            margin: 0 !important;
+            padding: 0 !important;
             box-sizing: border-box;
         }
         
+        html, body {
+            background: white !important;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: white !important;
+            padding: 2px !important;
+            font-size: 10px;
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 100%;
         }
         
         h1 {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 12px;
+            margin-bottom: 2px !important;
+            color: #333;
+            padding: 0 !important;
+        }
+        
+        .stats {
+            font-size: 9px;
+            margin-bottom: 2px !important;
+            color: #666;
+        }
+        
+        .search-box {
+            margin-bottom: 4px !important;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white !important;
+            padding: 1px !important;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 2px 3px !important;
+            font-size: 9px;
+            border: 1px solid #999;
+            border-radius: 2px;
+            background: white !important;
         }
         
         .notebook-section {
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 25px;
+            background: white !important;
+            border: 1px solid #ccc;
+            margin-bottom: 2px !important;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         
         .notebook-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
+            background: #f9f9f9 !important;
+            color: #333;
+            padding: 2px 4px !important;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 10px;
+            font-weight: bold;
             user-select: none;
+            border-bottom: 1px solid #ddd;
         }
         
         .notebook-header:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #6a3a91 100%);
+            background: #f0f0f0 !important;
         }
         
         .toggle-icon {
-            transition: transform 0.3s;
-            font-size: 20px;
+            transition: transform 0.2s;
+            font-size: 10px;
+            margin-left: 2px !important;
         }
         
         .notebook-header.collapsed .toggle-icon {
@@ -65,108 +94,77 @@
         }
         
         .code-cells {
-            padding: 20px;
+            padding: 1px !important;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white !important;
         }
         
         .code-cell {
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            background: white !important;
+            border: 1px solid #eee;
+            margin-bottom: 1px !important;
             overflow: hidden;
+            font-size: 9px;
         }
         
         .cell-header {
-            background: #e8e8e8;
-            padding: 10px 15px;
+            background: #fafafa !important;
+            padding: 1px 3px !important;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 8px;
             color: #666;
+            border-bottom: 1px solid #eee;
         }
         
         .copy-btn {
-            background: #667eea;
+            background: #4CAF50 !important;
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
+            padding: 1px 4px !important;
+            border-radius: 1px;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
+            font-size: 8px;
+            font-weight: bold;
+            transition: all 0.2s;
         }
         
         .copy-btn:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+            background: #45a049 !important;
         }
         
         .copy-btn.copied {
-            background: #4caf50;
-            animation: pulse 0.5s;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            background: #2196F3 !important;
         }
         
         pre {
-            margin: 0;
-            padding: 15px;
+            margin: 0 !important;
+            padding: 2px !important;
             overflow-x: auto;
-            background: #f5f5f5;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.5;
+            background: white !important;
+            font-family: monospace;
+            font-size: 9px;
+            line-height: 1.2;
+            max-height: 100px;
+            overflow-y: auto;
         }
         
         code {
-            color: #333;
-        }
-        
-        .search-box {
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            margin-bottom: 20px;
-        }
-        
-        .search-box input {
-            width: 100%;
-            padding: 12px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        
-        .stats {
-            text-align: center;
-            color: white;
-            margin-bottom: 20px;
-            font-size: 14px;
+            color: #222;
         }
         
         .hidden {
-            display: none;
+            display: none !important;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📚 Python Code Extractor - Fast Copy for Tests</h1>
-        
-        <div class="stats">
-            <p>Quick access to all Python code from your notebooks</p>
-        </div>
-        
+        <h1>Code</h1>
         <div class="search-box">
-            <input type="text" id="searchBox" placeholder="🔍 Search code snippets...">
+            <input type="text" id="searchBox" placeholder="Search...">
         </div>
         
         <div id="notebooksContainer"></div>
@@ -181,9 +179,9 @@
                 cellsHTML += `
                     <div class="code-cell search-item" data-content="${escapeHtml(code.toLowerCase())}">
                         <div class="cell-header">
-                            <span>Code Cell #${index + 1}</span>
+                            <span>#${index + 1}</span>
                             <button class="copy-btn" onclick="copyCode(this, '${escapeHtml(code).replace(/'/g, "\'")}')">
-                                📋 Copy
+                                Copy
                             </button>
                         </div>
                         <pre><code>${escapeHtml(code)}</code></pre>
@@ -193,11 +191,11 @@
             
             return `
                 <div class="notebook-section">
-                    <div class="notebook-header" onclick="toggleNotebook(this)">
-                        <span>📓 ${notebookName}</span>
+                    <div class="notebook-header collapsed" onclick="toggleNotebook(this)">
+                        <span>${notebookName}</span>
                         <span class="toggle-icon">▼</span>
                     </div>
-                    <div class="code-cells">
+                    <div class="code-cells hidden">
                         ${cellsHTML}
                     </div>
                 </div>
@@ -229,14 +227,14 @@
             
             navigator.clipboard.writeText(decodedCode).then(() => {
                 const originalText = button.textContent;
-                button.textContent = '✅ Copied!';
+                button.textContent = '✓ Copied';
                 button.classList.add('copied');
                 setTimeout(() => {
                     button.textContent = originalText;
                     button.classList.remove('copied');
-                }, 2000);
+                }, 1500);
             }).catch(() => {
-                alert('Failed to copy. Please try manually selecting and copying.');
+                alert('Failed to copy');
             });
         }
         
