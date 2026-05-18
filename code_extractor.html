@@ -40,97 +40,180 @@
   </div>
 
   <script>
-    // Notebook data (extracted from your notebooks)
-    const NOTEBOOKS = {"Exp2 Simple Responsible AI concept": ["\n#Responsible AI=Fairness+Transparency+Safety\n# Install libraries\n!pip install transformers torch\n\n# Import pipeline\nfrom transformers import pipeline\n\n# Load BERT model\nunmasker = pipeline(\"fill-mask\", model=\"bert-base-uncased\")\n\n# Test sentences\nsentences = [\n    \"The doctor said that [MASK].\",\n    \"The nurse said that [MASK].\"\n]\n\n# Check predictions\nfor s in sentences:\n\n    print(\"\\nSentence:\", s)\n\n    result = unmasker(s)\n\n    # Print top prediction\n    print(\"Prediction:\", result[0]['token_str'])\n", "Check whether AI gives equal results for different groups.", "from transformers import pipeline\n\n# Load sentiment model\nclassifier = pipeline(\"sentiment-analysis\")\n\n# Similar sentences\nsentences = [\n    \"The man is intelligent.\",\n    \"The woman is intelligent.\"\n]\n\n# Check outputs\nfor s in sentences:\n    print(s, \"->\", classifier(s))"], "exp 3 arithmetic operations using Tensorflow or PyTorch": ["# Import PyTorch\nimport torch\n\n# Create tensors\na = torch.tensor([[1, 2],\n                  [3, 4]])\n\nb = torch.tensor([[5, 6],\n                  [7, 8]])\n\nprint(\"Tensor A:\\n\", a)\nprint(\"Tensor B:\\n\", b)\nprint(\"\\nAddition:\\n\", a + b)\nprint(\"\\nSubtraction:\\n\", a - b)\nprint(\"\\nMultiplication:\\n\", a * b)\nprint(\"\\nScalar Multiplication:\\n\", a * 2)\nprint(\"\\nMatrix Multiplication:\\n\", torch.matmul(a, b))"], "exp 6 no prompt t5 summarisation": ["# Install library\n!pip install transformers\n\n# Import model components\nfrom transformers import AutoTokenizer, AutoModelForSeq2SeqLM\n\n# Load FLAN-T5 model and tokenizer\nmodel_name = \"google/flan-t5-small\"\ntokenizer = AutoTokenizer.from_pretrained(model_name)\nmodel = AutoModelForSeq2SeqLM.from_pretrained(model_name)\n\n# Dialogue\ntext = \"\"\"\nRam: Hello\nShyam: Hi\nRam: Let's go to college\n\"\"\"\n\n# Prepare input for summarization with an explicit prompt\ninput_text = \"summarize: \" + text\n\n# Tokenize the input\ninput_ids = tokenizer(input_text, return_tensors=\"pt\").input_ids\n\n# Generate summary\noutput_ids = model.generate(input_ids, max_new_tokens=50)\n\n# Decode and print the summary\nsummary_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)\nprint(summary_text)"], "exp 7 zero shot prompt t5 summarisation": ["# Install libraries\n!pip install transformers sentencepiece -q\n\n# Import libraries\nfrom transformers import AutoTokenizer, AutoModelForSeq2SeqLM\n\n# Load FLAN-T5 model\ntokenizer = AutoTokenizer.from_pretrained(\"google/flan-t5-small\")\nmodel = AutoModelForSeq2SeqLM.from_pretrained(\"google/flan-t5-small\")\n\n# Dialogue\ndialogue = \"\"\"\nRam: Hello\nShyam: Hi\nRam: Let's go to college\n\"\"\"\n\n# Prompt\ntext = \"Summarize this conversation: \" + dialogue\n\n# Convert text into tokens\ninputs = tokenizer(text, return_tensors=\"pt\")\n\n# Generate summary\noutputs = model.generate(inputs[\"input_ids\"])\n\n# Convert output into text\nsummary = tokenizer.decode(outputs[0], skip_special_tokens=True)\n\n# Print summary\nprint(summary)"], "exp 8 few shot prompt t5 summarisation": ["# Install libraries\n!pip install transformers sentencepiece -q\n\n# Import libraries\nfrom transformers import AutoTokenizer, AutoModelForSeq2SeqLM\n\n# Load FLAN-T5 model\ntokenizer = AutoTokenizer.from_pretrained(\"google/flan-t5-small\")\nmodel = AutoModelForSeq2SeqLM.from_pretrained(\"google/flan-t5-small\")\n\n# One-shot example\nexample = \"\"\"\nDialogue:\nRiya: Hi Rahul, are you coming to college tomorrow?\nRahul: Yes, we have the AI practical exam.\nRiya: Don't forget to bring the assignment.\nRahul: Thanks for reminding me.\n\nSummary:\nRiya reminds Rahul about the AI practical and assignment.\n\"\"\"\n\n# New dialogue\ndialogue = \"\"\"\nDialogue:\nAmit: Hello Sneha, did you complete the Python project?\nSneha: Yes, I finished it yesterday.\nAmit: Great! Can you help me with the final report?\nSneha: Sure, I will send you the format tonight.\n\nSummary:\n\"\"\"\n\n# Final prompt\nprompt = example + dialogue\n\n# Convert text into tokens\ninputs = tokenizer(prompt, return_tensors=\"pt\")\n\n# Generate summary\noutputs = model.generate(\n    inputs[\"input_ids\"],\n    max_length=50\n)\n\n# Convert output into text\nsummary = tokenizer.decode(\n    outputs[0],\n    skip_special_tokens=True\n)\n\n# Print summary\nprint(\"MODEL SUMMARY:\\n\")\nprint(summary)"], "exp1 transformer example": ["# Install libraries\n!pip install transformers torch\n\n# Import libraries\nfrom transformers import AutoTokenizer\nimport torch\n\n# Load tokenizer model\ntokenizer = AutoTokenizer.from_pretrained(\"distilbert-base-uncased\")\n\n# Input sentence\nsentence = \"AI helps learning\"\n\n# Convert sentence into tokens\ntokens = tokenizer.tokenize(sentence)\n\n# Print tokens\nprint(\"Tokens:\", tokens)\n\n# Convert tokens into token IDs\ntoken_ids = tokenizer.convert_tokens_to_ids(tokens)\n\n# Print token IDs\nprint(\"Token IDs:\", token_ids)\n\n# Create embedding layer\nembedding_layer = torch.nn.Embedding(30000, 8)\n\n# Convert token IDs into tensor\ninput_ids = torch.tensor([token_ids])\n\n# Generate embeddings\nembeddings = embedding_layer(input_ids)\n\n# Print embedding shape\nprint(\"Shape:\", embeddings.shape)\n\n# Print embeddings\nprint(\"Embeddings:\\n\", embeddings)"], "exp4 chatbot": ["Rule-Based Chatbot", "# Simple chatbot\n\n# Start infinite loop\nwhile True:\n\n    # Take user input\n    user = input(\"You: \")\n\n    # Convert to lowercase\n    user = user.lower()\n\n    # Rules\n    if user == \"hello\":\n        print(\"Bot: Hi!\")\n\n    elif user == \"how are you\":\n        print(\"Bot: I am fine!\")\n\n    elif user == \"bye\":\n        print(\"Bot: Goodbye!\")\n        break\n\n    else:\n        print(\"Bot: I don't understand.\")", "Hugging Face AI Chatbot", "# Install libraries\n!pip install transformers torch\n\n# Import pipeline\nfrom transformers import pipeline\n\n# Load chatbot model\nchatbot = pipeline(\"text-generation\", model=\"microsoft/DialoGPT-small\")\n\n# User message\ntext = \"Hello\"\n\n# Generate reply\nresult = chatbot(text, max_length=50)\n\n# Print response\nprint(result)", "Ollama Chatbot", "!pip install ollama\nimport ollama\n\nresponse = ollama.chat(\n    model='llama3',\n    messages=[\n        {'role': 'user', 'content': 'Hello'}\n    ]\n)\n\nprint(response['message']['content'])", "Text Summarization using bart", "from transformers import AutoTokenizer, AutoModelForSeq2SeqLM\nimport torch\n# Load the tokenizer and model directly for summarization\nmodel_name = \"facebook/bart-large-cnn\"\ntokenizer = AutoTokenizer.from_pretrained(model_name)\nmodel = AutoModelForSeq2SeqLM.from_pretrained(model_name)\n# Move to GPU if available\ndevice = \"cuda\" if torch.cuda.is_available() else \"cpu\"\nmodel.to(device)\ntext = \"\"\"\nThe Internet of Things (IoT) describes the network of physical objects\u2014\"things\"\u2014\nthat are\nembedded with sensors, software, and other technologies for the purpose of\nconnecting and\nexchanging data with other devices and systems over the internet. These devices\nrange from\nordinary household objects to sophisticated industrial tools. With more than 7\nbillion\nconnected IoT devices today, experts are expecting this number to grow to 10\nbillion by\n2020 and 22 billion by 2025. Oracle has a network of device partners.\n\"\"\"\n# Encode the input text\ninputs = tokenizer([text], max_length=1024, return_tensors='pt',\ntruncation=True).to(device)\n# Generate summary\nsummary_ids = model.generate(\ninputs['input_ids'],\nmax_length=50, # Set max_length for the generated summary\nmin_length=20,\ndo_sample=False,\nnum_beams=4, # Use beam search for better quality\nrepetition_penalty=2.5,\nlength_penalty=1.0\n)\nsummary = tokenizer.decode(summary_ids[0], skip_special_tokens=True,\nclean_up_tokenization_spaces=True)\nprint(summary)"], "exp5 langchain groq translation": ["# Install libraries\n!pip install langchain langchain-groq\n\n# Import libraries\nimport os\nfrom langchain_groq import ChatGroq\n\n# Hardcoded API key\nos.environ[\"GROQ_API_KEY\"] = \"groq-\"\n\n# Load Llama 3 model\nllm = ChatGroq(\n    model=\"llama-3.3-70b-versatile\"\n)\n\n# English text\ntext = \"Hello, how are you?\"\n\n# Translate into French\nresponse = llm.invoke(\n    \"Translate this into French: \" + text\n)\n\nprint(response.content)"]};
+    const NOTEBOOKS = [
+        { name: 'Exp2 Simple Responsible AI concept', path: 'c/Exp2 Simple Responsible AI concept.ipynb' },
+        { name: 'exp 3 arithmetic operations using Tensorflow or PyTorch', path: 'c/exp 3 arithmetic operations using Tensorflow or PyTorch.ipynb' },
+        { name: 'exp 6 no prompt t5 summarisation', path: 'c/exp 6 no prompt t5 summarisation.ipynb' },
+        { name: 'exp 7 zero shot prompt t5 summarisation', path: 'c/exp 7 zero shot prompt t5 summarisation.ipynb' },
+        { name: 'exp 8 few shot prompt t5 summarisation', path: 'c/exp 8 few shot prompt t5 summarisation.ipynb' },
+        { name: 'exp1 transformer example', path: 'c/exp1 transformer example.ipynb' },
+        { name: 'exp4 chatbot', path: 'c/exp4_chatbot.ipynb' },
+        { name: 'exp5 langchain groq translation', path: 'c/exp5 langchain groq translation.ipynb' }
+      ];
 
-    // Utility: escape HTML
-    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+      const container = document.getElementById('container');
+      const searchInput = document.getElementById('search');
 
-    const container = document.getElementById('container');
+      const esc = (value) => String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 
-    // Render tiles
-    Object.entries(NOTEBOOKS).forEach(([name,cells]) => {
-      const tile = document.createElement('section');
-      tile.className = 'tile';
+      const normalizeSource = (source) => Array.isArray(source) ? source.join('') : String(source || '');
 
-      const head = document.createElement('div');
-      head.className = 'tile-head';
-      head.innerHTML = `<div class="tile-title">${esc(name)}</div>`;
+      const setStatus = (message) => {
+        container.innerHTML = `<p class="tile" style="padding:12px;margin:0;">${esc(message)}</p>`;
+      };
 
-      const actions = document.createElement('div');
-      actions.className = 'tile-actions';
+      const loadNotebook = async ({ name, path }) => {
+        const response = await fetch(encodeURI(`${path}?v=${Date.now()}`), { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Failed to load ${path} (${response.status})`);
+        }
 
-      const copyFileBtn = document.createElement('button');
-      copyFileBtn.className = 'btn small';
-      copyFileBtn.type = 'button';
-      copyFileBtn.textContent = 'COPY FILE';
-      copyFileBtn.setAttribute('aria-label','Copy entire file');
-      actions.appendChild(copyFileBtn);
+        const notebook = await response.json();
+        const cells = (notebook.cells || [])
+          .filter((cell) => cell.cell_type === 'code')
+          .map((cell) => normalizeSource(cell.source))
+          .filter((code) => code.trim().length > 0);
 
-      const toggleBtn = document.createElement('button');
-      toggleBtn.className = 'btn small';
-      toggleBtn.type = 'button';
-      toggleBtn.textContent = 'VIEW';
-      actions.appendChild(toggleBtn);
+        return { name, cells };
+      };
 
-      head.appendChild(actions);
-      tile.appendChild(head);
+      const renderNotebook = ({ name, cells }) => {
+        const tile = document.createElement('section');
+        tile.className = 'tile';
 
-      const body = document.createElement('div');
-      body.className = 'tile-body';
+        const head = document.createElement('div');
+        head.className = 'tile-head';
+        head.innerHTML = `<div class="tile-title">${esc(name)}</div>`;
 
-      // add cells
-      cells.forEach((code, idx) => {
-        const cell = document.createElement('article');
-        cell.className = 'cell';
-        cell.setAttribute('data-cell-index', idx);
-        cell.innerHTML = `
-          <div class="cell-head"><span>Cell #${idx+1}</span><button class="btn small" data-copy-cell>Copy</button></div>
-          <pre class="cell-pre"><code>${esc(code)}</code></pre>
-        `;
-        body.appendChild(cell);
+        const actions = document.createElement('div');
+        actions.className = 'tile-actions';
+
+        const copyFileBtn = document.createElement('button');
+        copyFileBtn.className = 'btn small';
+        copyFileBtn.type = 'button';
+        copyFileBtn.textContent = 'COPY FILE';
+        copyFileBtn.setAttribute('aria-label', 'Copy entire file');
+        actions.appendChild(copyFileBtn);
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'btn small';
+        toggleBtn.type = 'button';
+        toggleBtn.textContent = 'VIEW';
+        actions.appendChild(toggleBtn);
+
+        head.appendChild(actions);
+        tile.appendChild(head);
+
+        const body = document.createElement('div');
+        body.className = 'tile-body';
+
+        cells.forEach((code, index) => {
+          const cell = document.createElement('article');
+          cell.className = 'cell';
+          cell.setAttribute('data-cell-index', String(index));
+          cell.innerHTML = `
+            <div class="cell-head"><span>Cell #${index + 1}</span><button class="btn small" data-copy-cell>Copy</button></div>
+            <pre class="cell-pre"><code>${esc(code)}</code></pre>
+          `;
+          body.appendChild(cell);
+        });
+
+        tile.appendChild(body);
+        container.appendChild(tile);
+
+        toggleBtn.addEventListener('click', () => body.classList.toggle('open'));
+
+        copyFileBtn.addEventListener('click', () => {
+          copyText(cells.join('\n\n# --- cell boundary ---\n\n'), copyFileBtn, tile);
+        });
+      };
+
+      const copyText = (text, triggerEl, flashTarget) => {
+        if (!text) return;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => flash(triggerEl, flashTarget));
+          return;
+        }
+
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.focus();
+          textarea.select();
+          const copied = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          if (copied) {
+            flash(triggerEl, flashTarget);
+            return;
+          }
+        } catch (error) {}
+
+        const pre = flashTarget.querySelector ? flashTarget.querySelector('pre') : null;
+        if (pre) {
+          const range = document.createRange();
+          range.selectNodeContents(pre);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      };
+
+      const flash = (triggerEl, targetEl) => {
+        const badge = document.createElement('span');
+        badge.className = 'copied-badge';
+        badge.textContent = '✓ Copied';
+        (triggerEl || targetEl).appendChild(badge);
+        setTimeout(() => badge.remove(), 900);
+      };
+
+      document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-copy-cell]');
+        if (!button) return;
+
+        const cell = button.closest('.cell');
+        if (!cell) return;
+
+        const code = cell.querySelector('pre code').textContent || '';
+        copyText(code, button, cell);
       });
 
-      tile.appendChild(body);
-      container.appendChild(tile);
-
-      // Events
-      toggleBtn.addEventListener('click', () => body.classList.toggle('open'));
-
-      copyFileBtn.addEventListener('click', () => {
-        // join all cells into one string
-        const joined = cells.join('\n\n# --- cell boundary ---\n\n');
-        copyText(joined, copyFileBtn, tile);
+      searchInput.addEventListener('input', (event) => {
+        const query = event.target.value.trim().toLowerCase();
+        document.querySelectorAll('.tile').forEach((tile) => {
+          const text = tile.textContent.toLowerCase();
+          tile.style.display = query ? (text.includes(query) ? 'flex' : 'none') : 'flex';
+        });
       });
-    });
 
-    // Delegated: copy single cell buttons
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-copy-cell]');
-      if (!btn) return;
-      const cell = btn.closest('.cell');
-      if (!cell) return;
-      const code = cell.querySelector('pre code').textContent || '';
-      copyText(code, btn, cell);
-    });
+      (async () => {
+        try {
+          setStatus('Loading notebooks...');
+          const notebooks = await Promise.all(
+            NOTEBOOKS.map(async (meta) => {
+              try {
+                return await loadNotebook(meta);
+              } catch (error) {
+                return { name: meta.name, cells: [`Failed to load ${meta.path}\n\n${error.message}`] };
+              }
+            })
+          );
 
-    // copy text with Clipboard API + fallback
-    function copyText(text, triggerEl, flashTarget){
-      if (!text) return;
-      // try modern API
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => flash(triggerEl, flashTarget));
-        return;
-      }
-      // fallback to execCommand
-      try{
-        const ta = document.createElement('textarea');
-        ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
-        document.body.appendChild(ta); ta.focus(); ta.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(ta);
-        if (ok) { flash(triggerEl, flashTarget); return; }
-      }catch(e){}
+          container.innerHTML = '';
+          notebooks.forEach(renderNotebook);
+        } catch (error) {
+          setStatus(`Unable to load notebooks: ${error.message}`);
+        }
+      })();
+    </script>
       // final fallback: select text inside element for manual copy
       const pre = flashTarget.querySelector? flashTarget.querySelector('pre') : null;
       if (pre){ const range = document.createRange(); range.selectNodeContents(pre); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
