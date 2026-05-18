@@ -214,26 +214,6 @@
         }
       })();
     </script>
-      // final fallback: select text inside element for manual copy
-      const pre = flashTarget.querySelector? flashTarget.querySelector('pre') : null;
-      if (pre){ const range = document.createRange(); range.selectNodeContents(pre); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
-    }
-
-    function flash(triggerEl, targetEl){
-      const badge = document.createElement('span'); badge.className='copied-badge'; badge.textContent='✓ Copied';
-      // show on trigger if possible, else on tile
-      (triggerEl || targetEl).appendChild(badge);
-      setTimeout(()=>{ badge.remove(); },900);
-    }
-
-    // Search
-    document.getElementById('search').addEventListener('input', (e)=>{
-      const q = e.target.value.trim().toLowerCase();
-      [...document.querySelectorAll('.tile')].forEach(tile=>{
-        const text = tile.textContent.toLowerCase();
-        tile.style.display = q? (text.includes(q)?'flex':'none') : 'flex';
-      });
-    });
   </script>
 </body>
 </html>
