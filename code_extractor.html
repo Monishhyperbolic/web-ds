@@ -70,7 +70,24 @@ document.addEventListener('click', function(e) {
 		item.classList.add('copied');
 		setTimeout(() => item.classList.remove('copied'), 900);
 	}).catch(() => {
-		// fallback: select text for manual copy
+		// Try older execCommand fallback (works on file:// in some browsers)
+		try {
+			const ta = document.createElement('textarea');
+			ta.value = codeText;
+			document.body.appendChild(ta);
+			ta.select();
+			const ok = document.execCommand('copy');
+			document.body.removeChild(ta);
+			if (ok) {
+				item.classList.add('copied');
+				setTimeout(() => item.classList.remove('copied'), 900);
+				return;
+			}
+		} catch (e) {
+			// ignore
+		}
+
+		// final fallback: select text for manual copy
 		const pre = item.querySelector('pre');
 		if (pre) {
 			const range = document.createRange();
