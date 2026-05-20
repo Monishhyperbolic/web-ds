@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment Code Browser</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1ea;
+      --panel: #fffdf8;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --accent-2: #115e59;
+      --border: #d6d3cc;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(17, 94, 89, 0.08), transparent 24%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #ffffff, #f8fafc);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: -0.03em;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .toolbar a,
+    .toolbar button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--accent-2);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .toolbar button:hover,
+    .toolbar a:hover {
+      border-color: var(--accent);
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+    }
+
+    details {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 700;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-weight: 400;
+      font-size: 0.95rem;
+    }
+
+    .content {
+      border-top: 1px solid var(--border);
+      padding: 16px 20px 20px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+
+    .copy-btn {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: white;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-2);
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow: auto;
+      background: #0b1220;
+      color: #e5eefb;
+      border-radius: 14px;
+      line-height: 1.55;
+      font-size: 0.93rem;
+      white-space: pre;
+    }
+
+    code {
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+    }
+
+    .status {
+      min-height: 1.2em;
+      margin-top: 8px;
+      color: var(--accent-2);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 640px) {
+      header,
+      summary,
+      .content {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Experiment Code Browser</h1>
+      <p>Open any experiment to inspect the MATLAB code and use the copy button to copy the visible block.</p>
+      <div class="toolbar">
+        <button type="button" onclick="expandAll()">Expand all</button>
+        <button type="button" onclick="collapseAll()">Collapse all</button>
+        <a href="#exp1">Jump to first experiment</a>
+      </div>
+    </header>
+
+    <main class="list" id="experiments"></main>
+  </div>
+
+  <script>
+    const experiments = [
+      {
+        id: 'exp1',
+        title: 'EXP1_SCARA_WSE.m',
+        file: 'd/EXP1_SCARA_WSE.m',
+        code: `clc; clear; close all;
+
+fprintf('===== SCARA Robot - Work Space Envelope (WSE) =====\n\n');
+
+fprintf('Robot Configurations:\n');
+fprintf('  Cartesian : PPP  | Box-shaped WSE\n');
+fprintf('  Cylindrical: RPP | Cylindrical WSE\n');
+fprintf('  Spherical  : RRP | Spherical WSE\n');
+fprintf('  SCARA      : RRP | Complex planar + vertical WSE\n');
+fprintf('  Articulated: RRR | Partial sphere WSE\n\n');
+fprintf('Enter SCARA robot parameters:\n');
+
+L1         = input('Link 1 length (shoulder to elbow) in cm [e.g. 3]: ');
+L2         = input('Link 2 length (elbow to wrist) in cm   [e.g. 2]: ');
+theta1_max = input('Max angle of Joint 1 (degrees)         [e.g. 270]: ');
+theta2_max = input('Max angle of Joint 2 (degrees)         [e.g. 270]: ');
+d3_min     = input('Min vertical stroke (cm)               [e.g. 0]: ');
+d3_max     = input('Max vertical stroke (cm)               [e.g. 5]: ');
+
+theta1_range = deg2rad(theta1_max);
+theta2_range = deg2rad(theta2_max);
+
+
+R_max = L1 + L2;             
+R_min = abs(L1 - L2);        
+vertical_stroke = d3_max - d3_min;
+
+fprintf('\n=== WSE Results ===\n');
+fprintf('Maximum Horizontal Reach : %.2f cm\n', R_max);
+fprintf('Minimum Horizontal Reach : %.2f cm\n', R_min);
+fprintf('Vertical Stroke          : %.2f cm\n', vertical_stroke);
+
+
+A_annulus = pi * (R_max^2 - R_min^2) * (theta1_max/360);
+WSE_volume = A_annulus * vertical_stroke;
+fprintf('Approximate WSE Volume   : %.4f cm^3\n', WSE_volume);
+
+
+figure('Name', 'SCARA WSE - Top View');
+theta = linspace(0, theta1_range, 300);
+
+
+x_outer = R_max * cos(theta);
+y_outer = R_max * sin(theta);
+
+
+x_inner = R_min * cos(theta);
+y_inner = R_min * sin(theta);
+
+fill([x_outer, fliplr(x_inner)], [y_outer, fliplr(y_inner)], ...
+    [0.6 0.8 1], 'EdgeColor', 'b', 'LineWidth', 1.5);
+hold on;
+plot(0, 0, 'r+', 'MarkerSize', 12, 'LineWidth', 2);
+title('SCARA Robot Work Space Envelope (Top View)');
+xlabel('X (cm)'); ylabel('Y (cm)');
+legend('Work Envelope', 'Robot Base');
+axis equal; grid on;
+
+
+figure('Name', 'SCARA WSE - Side View');
+rect_x = [R_min, R_max, R_max, R_min, R_min];
+rect_y = [d3_min, d3_min, d3_max, d3_max, d3_min];
+fill(rect_x, rect_y, [0.6 0.8 1], 'EdgeColor', 'b', 'LineWidth', 1.5);
+xlabel('Radial Distance (cm)'); ylabel('Vertical Height (cm)');
+title('SCARA Robot Work Space Envelope (Side View)');
+grid on;
+
+fprintf('\nConclusion: WSE of SCARA robot obtained with R_max = %.2f cm, Volume ≈ %.2f cm^3\n', R_max, WSE_volume);`
+      },
+      {
+        id: 'exp3',
+        title: 'EXP3_CoordinateTransformation.m',
+        file: 'd/EXP3_CoordinateTransformation.m',
+        code: `clear;
+
+P = [1; 2; 3];
+
+rotation_angle = 90;
+
+theta = deg2rad(rotation_angle);
+
+Rz = [cos(theta), -sin(theta), 0;
+      sin(theta),  cos(theta), 0;
+      0,           0,          1];
+
+Rx = [1, 0,           0;
+      0, cos(theta), -sin(theta);
+      0, sin(theta),  cos(theta)];
+
+Ry = [cos(theta),  0, -sin(theta);
+      0,           1,  0;
+      sin(theta),  0,  cos(theta)];
+
+R = Rx * Ry * Rz;
+
+transformed_point = R * P;
+
+disp('Original Point');
+disp(P);
+
+disp('Transformed point');
+disp(transformed_point);`
+      },
+      {
+        id: 'exp4a',
+        title: 'EXP4_HomogeneousTransformation_2D.m',
+        file: 'd/EXP4_HomogeneousTransformation_2D.m',
+        code: `original_point = [1, 1, 1];  % idhar points if change krna karo
+
+translation = [2, 3, 0];     % Translation according to quest
+
+% z ka rotation angle
+theta = 45;
+theta = deg2rad(theta);      % Convert to radians
+
+% Rz ka formula
+Rz = [cos(theta), -sin(theta), 0;
+      sin(theta),  cos(theta), 0;
+      0,           0,          1];
+
+% Apply the translation
+translated_point = original_point + translation;
+
+% Apply the rotation (first translate, then rotate)
+final_point = (Rz * translated_point')';
+
+% Display the results
+disp('Original Points');
+disp(original_point);
+
+disp('Translated Point:');
+disp(translated_point);
+
+disp('Final Point after Rotation:');
+disp(final_point);`
+      },
+      {
+        id: 'exp4b',
+        title: 'EXP4_Homogenous_3D.m',
+        file: 'd/EXP4_Homogenous_3D.m',
+        code: `clc;
+clear;
+close all;
+
+PM = [1; 0; 0; 1];
+
+disp('Initial Point Matrix:')
+disp(PM)
+
+T = eye(4);
+
+disp('Identity Transformation Matrix:')
+disp(T)
+
+frame = input('Enter the frame you want Fixed(1) or Mobile(2): ');
+
+op1 = input('Enter your operation as 1 for Rotation or 2 for Translation: ');
+
+if op1 == 1
+
+    angle = input('Enter the input angle for Rotation: ');
+    angle = deg2rad(angle);
+
+    axis = input('Enter the input axis of Rotation(1=X, 2=Y, 3=Z): ');
+
+    if axis == 1
+
+        H1 = [1 0 0 0;
+              0 cos(angle) -sin(angle) 0;
+              0 sin(angle) cos(angle) 0;
+              0 0 0 1];
+
+    elseif axis == 2
+
+        H1 = [cos(angle) 0 sin(angle) 0;
+              0 1 0 0;
+             -sin(angle) 0 cos(angle) 0;
+              0 0 0 1];
+
+    elseif axis == 3
+
+        H1 = [cos(angle) -sin(angle) 0 0;
+              sin(angle) cos(angle) 0 0;
+              0 0 1 0;
+              0 0 0 1];
+    end
+
+    disp('Rotation Matrix:')
+    disp(H1)
+
+elseif op1 == 2
+
+    dist = input('Enter the distance of Translation: ');
+
+    axis = input('Enter the axis of Translation(1=X, 2=Y, 3=Z): ');
+
+    if axis == 1
+
+        H1 = [1 0 0 dist;
+              0 1 0 0;
+              0 0 1 0;
+              0 0 0 1];
+
+    elseif axis == 2
+
+        H1 = [1 0 0 0;
+              0 1 0 dist;
+              0 0 1 0;
+              0 0 0 1];
+
+    elseif axis == 3
+
+        H1 = [1 0 0 0;
+              0 1 0 0;
+              0 0 1 dist;
+              0 0 0 1];
+    end
+
+    disp('Translation Matrix:')
+    disp(H1)
+
+end
+
+op2 = input('Enter your second operation as 1 for Rotation or 2 for Translation: ');
+
+if op2 == 1
+
+    angle = input('Enter the input angle for Rotation: ');
+    angle = deg2rad(angle);
+
+    axis = input('Enter the input axis of Rotation(1=X, 2=Y, 3=Z): ');
+
+    if axis == 1
+
+        H2 = [1 0 0 0;
+              0 cos(angle) -sin(angle) 0;
+              0 sin(angle) cos(angle) 0;
+              0 0 0 1];
+
+    elseif axis == 2
+
+        H2 = [cos(angle) 0 sin(angle) 0;
+              0 1 0 0;
+             -sin(angle) 0 cos(angle) 0;
+              0 0 0 1];
+
+    elseif axis == 3
+
+        H2 = [cos(angle) -sin(angle) 0 0;
+              sin(angle) cos(angle) 0 0;
+              0 0 1 0;
+              0 0 0 1];
+    end
+
+    disp('Second Rotation Matrix:')
+    disp(H2)
+
+elseif op2 == 2
+
+    dist = input('Enter the distance of Translation: ');
+
+    axis = input('Enter the axis of Translation(1=X, 2=Y, 3=Z): ');
+
+    if axis == 1
+
+        H2 = [1 0 0 dist;
+              0 1 0 0;
+              0 0 1 0;
+              0 0 0 1];
+
+    elseif axis == 2
+
+        H2 = [1 0 0 0;
+              0 1 0 dist;
+              0 0 1 0;
+              0 0 0 1];
+
+    elseif axis == 3
+
+        H2 = [1 0 0 0;
+              0 1 0 0;
+              0 0 1 dist;
+              0 0 0 1];
+    end
+
+    disp('Second Translation Matrix:')
+    disp(H2)
+
+end
+
+if frame == 1
+
+    H = H2 * H1;
+
+elseif frame == 2
+
+    H = H1 * H2;
+
+else
+
+    error('Invalid frame selection');
+
+end
+
+PF = H * PM;
+
+disp('Final Transformation Matrix:')
+disp(H)
+
+disp('Final Transformed Point:')
+disp(PF)`
+      },
+      {
+        id: 'exp5',
+        title: 'EXP5_DirectKinematics.m',
+        file: 'd/EXP5_DirectKinematics.m',
+        code: `clc;
+clear;
+close all;
+
+fprintf('===== PART 1: 3-Axis Planar Robotic Arm =====\n\n');
+
+a1 = 1;
+a2 = 1.5;
+a3 = 1;
+
+t1 = pi/3;
+t2 = pi/12;
+t3 = pi/18;
+
+x1 = a1*cos(t1);
+y1 = a1*sin(t1);
+
+x2 = x1 + a2*cos(t1+t2);
+y2 = y1 + a2*sin(t1+t2);
+
+x3 = x2 + a3*cos(t1+t2+t3);
+y3 = y2 + a3*sin(t1+t2+t3);
+
+fprintf('Joint 1 A = (%.4f , %.4f)\n',x1,y1);
+fprintf('Joint 2 B = (%.4f , %.4f)\n',x2,y2);
+fprintf('End Effector P = (%.4f , %.4f)\n\n',x3,y3);
+
+figure;
+
+hold on;
+grid on;
+axis equal;
+
+plot([-5 5],[0 0],'r','LineWidth',1.5);
+plot([0 0],[-5 5],'g','LineWidth',1.5);
+
+plot([0 x1],[0 y1],'b-o','LineWidth',3,...
+    'MarkerFaceColor','k','MarkerSize',7);
+
+plot([x1 x2],[y1 y2],'c-o','LineWidth',3,...
+    'MarkerFaceColor','k','MarkerSize',7);
+
+plot([x2 x3],[y2 y3],'m-o','LineWidth',3,...
+    'MarkerFaceColor','k','MarkerSize',7);
+
+scatter(0,0,70,'filled','k');
+
+text(0,0,'  O (0,0)','FontWeight','bold');
+
+text(x1,y1,...
+sprintf('  A (%.2f, %.2f)',x1,y1),...
+'Color','b','FontWeight','bold');
+
+text(x2,y2,...
+sprintf('  B (%.2f, %.2f)',x2,y2),...
+'Color','c','FontWeight','bold');
+
+text(x3,y3,...
+sprintf('  P (%.2f, %.2f)',x3,y3),...
+'Color','m','FontWeight','bold');
+
+title('3-Axis Robotic Arm Forward Kinematics');
+
+xlabel('X-axis');
+ylabel('Y-axis');
+
+xlim([-6 6]);
+ylim([-5 5]);
+
+hold off;
+
+fprintf('\n===== PART 2: 4-Axis SCARA Robot (DH Method) =====\n\n');
+
+q = [pi/4 -pi/4 120 pi/2];
+d = [877 0 120 200];
+a = [425 325 0 0];
+alpha = [pi 0 0 0];
+theta = [pi/4 -pi/3 0 pi/2];
+
+disp('q = ');
+disp(q);
+
+disp('d = ');
+disp(d);
+
+disp('a = ');
+disp(a);
+
+disp('alpha = ');
+disp(alpha);
+
+disp('theta = ');
+disp(theta);
+
+DH = @(th,dv,av,al)[...
+    cos(th) -sin(th)*cos(al)  sin(th)*sin(al) av*cos(th);
+    sin(th)  cos(th)*cos(al) -cos(th)*sin(al) av*sin(th);
+    0        sin(al)          cos(al)         dv;
+    0        0                0               1];
+
+T1 = DH(theta(1),d(1),a(1),alpha(1));
+T2 = DH(theta(2),d(2),a(2),alpha(2));
+T3 = DH(theta(3),d(3),a(3),alpha(3));
+T4 = DH(theta(4),d(4),a(4),alpha(4));
+
+disp('T1 = ');
+disp(T1);
+
+disp('T2 = ');
+disp(T2);
+
+disp('T3 = ');
+disp(T3);
+
+disp('T4 = ');
+disp(T4);
+
+T = T1*T2*T3*T4;
+
+disp('T = ');
+disp(T);
+
+Px = T(1,4);
+Py = T(2,4);
+Pz = T(3,4);
+
+disp('Px = ');
+disp(Px);
+
+disp('Py = ');
+disp(Py);
+
+disp('Pz = ');
+disp(Pz);`
+      },
+      {
+        id: 'exp6',
+        title: 'EXP6_InverseKinematics.m',
+        file: 'd/EXP6_InverseKinematics.m',
+        code: `%% SCARA Robot - Inverse Kinematics
+
+% Given constants
+a1 = 425;
+a2 = 375;
+d1 = 877;
+d4 = 200;
+
+% --- Part 1: Direct calculation with fixed values ---
+w1 = 692.82;
+w2 = 25;
+w3 = 527;
+w6 = 1.6487;
+theta2 = 60;
+
+q2 = acos(((w1^2) + (w2^2) - (a1^2) - (a2^2)) / (2 * a1 * a2));
+q1 = atan2((a2*sin(theta2))*w1 + (a1 + a2*cos(theta2))*w2, ...
+           (a1 + a2*cos(theta2))*w1 - a2*sin(theta2)*w2);
+q3 = d1 - d4 - w3;
+q4 = pi * log(abs(w6));
+
+disp("--- Fixed Value Results ---")
+disp("q2 = "); disp(q2)
+disp("q1 = "); disp(q1)
+disp("q3 = "); disp(q3)
+disp("q4 = "); disp(q4)
+
+% --- Part 2: User input ---
+w = input("Enter the w vector [w1 w2 w3 w4 w5 w6]: ");
+d = input("Enter the d vector [d1 d2 d3 d4]: ");
+a = input("Enter the a vector [a1 a2]: ");
+
+q2 = acos(((w(1)^2) + (w(2)^2) - (a(1)^2) - (a(2)^2)) / (2 * a(1) * a(2)));
+
+% Elbow-up solution
+Y_a  = (a(2)*sin(q2)*w(1)) + (a(1) + a(2)*cos(q2))*w(2);
+X_a  = (a(1) + a(2)*cos(q2))*w(1) - (a(2)*sin(q2)*w(2));
+q1a  = atan2(Y_a, X_a);
+
+% Elbow-down solution
+Y_b  = (a(2)*sin(-q2)*w(1)) + (a(1) + a(2)*cos(-q2))*w(2);
+X_b  = (a(1) + a(2)*cos(-q2))*w(1) - (a(2)*sin(-q2)*w(2));
+q1b  = atan2(Y_b, X_b);
+
+q3 = d(1) - d(4) - w(3);
+q4 = pi * log(abs(w(6)));
+
+disp("--- User Input Results ---")
+disp("q2 = ");  disp(q2)
+disp("q1a = "); disp(q1a)
+disp("q1b = "); disp(q1b)
+disp("q3 = ");  disp(q3)
+disp("q4 = ");  disp(q4)
+
+% Input values:
+% w = [692.82, 25, 527, 0, 0, 1.6487]
+% d = [877, 0, 0, 200]
+% a = [425, 375]`
+      },
+      {
+        id: 'exp7',
+        title: 'EXP7_TrajectoryPlanning.m',
+        file: 'd/EXP7_TrajectoryPlanning.m',
+        code: `wpts = [0 45 15 90 45; 90 45 -45 15 90];
+[q, qd, qdd, tvec, pp] = trapveltraj(wpts, 501);
+
+subplot(2,1,1)
+plot(tvec, q)
+xlabel('t')
+ylabel('Positions')
+legend('X', 'Y')
+
+subplot(2,1,2)
+plot(tvec, qd)
+xlabel('t')
+ylabel('Velocities')
+legend('X', 'Y')`
+      },
+      {
+        id: 'exp8',
+        title: 'EXP8_TemplateMatching.m',
+        file: 'd/EXP8_TemplateMatching.m',
+        code: `i = [2 1 0 0 3; 0 0 5 0 0; 0 4 0 6 0; 1 0 5 0 0];
+t = [0 4 0; 3 0 5; 0 4 0];
+P = zeros(2, 3);
+m = 5;
+n = 4;
+m0 = 3;
+n0 = 3;
+
+for k = 1:n0
+    for j = 1:m0
+        for x = 1:n-n0+1
+            for y = 1:m-m0+1
+                P(x,y) = P(x,y) + abs(i(k+x-1, j+y-1) - t(k,j));
+            end
+        end
+    end
+end
+
+disp("P")
+disp(P)
+
+Y = min(P, [], 1);
+Z = min(Y);
+
+disp("Minimum Performance Index is:")
+disp(Z)
+
+[r, c] = size(P);
+for a = 1:r
+    for b = 1:c
+        if P(a,b) == Z
+            disp("Location:")
+            disp(a-1)
+            disp(",")
+            disp(b-1)
+        end
+    end
+end`
+      },
+      {
+        id: 'exp9',
+        title: 'EXP9_EdgeDetection.m',
+        file: 'd/EXP9_EdgeDetection.m',
+        code: `clc;
+clear;
+close all;
+
+% Step 1: Read the image
+img = imread('cameraman.tif');
+
+% Step 2: Convert to grayscale if needed
+if size(img, 3) == 3
+    gray_img = rgb2gray(img);
+else
+    gray_img = img;
+end
+
+% Step 3: Apply Roberts Edge Detection
+edge_img = edge(gray_img, 'roberts');
+
+% Step 4: Display images
+figure;
+subplot(1,2,1)
+imshow(gray_img)
+title('Input Image')
+
+subplot(1,2,2)
+imshow(edge_img)
+title('Roberts Edge Detection Output')`
+      }
+    ];
+
+    function escapeHtml(text) {
+      return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+    }
+
+    function render() {
+      const root = document.getElementById('experiments');
+      root.innerHTML = experiments.map((item) => `
+        <details id="${item.id}">
+          <summary>
+            <span>${item.title}</span>
+            <span class="meta">${item.file}</span>
+          </summary>
+          <div class="content">
+            <div class="actions">
+              <button class="copy-btn" type="button" data-target="${item.id}">Copy code</button>
+            </div>
+            <pre><code>${escapeHtml(item.code)}</code></pre>
+            <div class="status" id="status-${item.id}"></div>
+          </div>
+        </details>
+      `).join('');
+
+      document.querySelectorAll('.copy-btn').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const id = button.getAttribute('data-target');
+          const item = experiments.find((entry) => entry.id === id);
+          try {
+            await navigator.clipboard.writeText(item.code);
+            document.getElementById(`status-${id}`).textContent = 'Copied to clipboard.';
+          } catch (error) {
+            document.getElementById(`status-${id}`).textContent = 'Copy failed in this browser.';
+          }
+        });
+      });
+    }
+
+    function expandAll() {
+      document.querySelectorAll('details').forEach((detail) => detail.open = true);
+    }
+
+    function collapseAll() {
+      document.querySelectorAll('details').forEach((detail) => detail.open = false);
+    }
+
+    render();
+  </script>
+</body>
+</html>
