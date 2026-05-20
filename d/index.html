@@ -183,6 +183,7 @@
       <div class="toolbar">
         <button type="button" onclick="expandAll()">Expand all</button>
         <button type="button" onclick="collapseAll()">Collapse all</button>
+        <button type="button" onclick="copyAllCode()">Copy all code</button>
         <a href="#exp1">Jump to first experiment</a>
       </div>
     </header>
@@ -849,6 +850,26 @@ title('Roberts Edge Detection Output')`
 
     function collapseAll() {
       document.querySelectorAll('details').forEach((detail) => detail.open = false);
+    }
+
+    async function copyAllCode() {
+      const combined = experiments
+        .map((item) => `### ${item.title}\n${item.code}`)
+        .join('\n\n');
+
+      try {
+        await navigator.clipboard.writeText(combined);
+      } catch (error) {
+        const fallback = document.createElement('textarea');
+        fallback.value = combined;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'absolute';
+        fallback.style.left = '-9999px';
+        document.body.appendChild(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        document.body.removeChild(fallback);
+      }
     }
 
     render();
